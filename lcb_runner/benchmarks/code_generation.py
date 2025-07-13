@@ -122,7 +122,49 @@ class CodeGenerationProblem:
 
 
 def load_code_generation_dataset(release_version="release_v1", start_date=None, end_date=None) -> list[CodeGenerationProblem]:
-    dataset = load_dataset("livecodebench/code_generation_lite", split="test", version_tag=release_version, trust_remote_code=True)
+    ALLOWED_FILES = {
+    "release_v1": ["test.jsonl"],
+    "release_v2": ["test.jsonl", "test2.jsonl"],
+    "release_v3": ["test.jsonl", "test2.jsonl", "test3.jsonl"],
+    "release_v4": ["test.jsonl", "test2.jsonl", "test3.jsonl", "test4.jsonl"],
+    "release_v5": [
+        "test.jsonl",
+        "test2.jsonl",
+        "test3.jsonl",
+        "test4.jsonl",
+        "test5.jsonl",
+    ],
+    "release_v6": [
+        "test.jsonl",
+        "test2.jsonl",
+        "test3.jsonl",
+        "test4.jsonl",
+        "test5.jsonl",
+        "test6.jsonl",
+    ],
+    "release_latest": [
+        "test.jsonl",
+        "test2.jsonl",
+        "test3.jsonl",
+        "test4.jsonl",
+        "test5.jsonl",
+        "test6.jsonl",
+    ],
+    }
+    v_list = ["v1", "v2", "v3", "v4", "v5", "v6"]
+    for v in v_list:
+        ALLOWED_FILES[v] = [f"test{v[1:]}.jsonl" if v != "v1" else "test.jsonl"]
+
+    n_vs = len(v_list)
+    for idx1 in range(1, n_vs + 1):
+        for idx2 in range(idx1 + 1, n_vs + 1):
+            ALLOWED_FILES[v_list[idx1 - 1] + "_" + v_list[idx2 - 1]] = [
+                f"test{idx}.jsonl" if idx != 1 else "test.jsonl"
+                for idx in range(idx1, idx2 + 1)
+            ]
+    
+    data_urls = [f"https://huggingface.co/datasets/livecodebench/code_generation_lite/resolve/main/{f}" for f in ALLOWED_FILES[release_version]]
+    dataset = load_dataset("json", data_files={"test": data_urls})["test"]
     dataset = [CodeGenerationProblem(**p) for p in dataset]  # type: ignore
     if start_date is not None:
         p_start_date = datetime.strptime(start_date, "%Y-%m-%d")
