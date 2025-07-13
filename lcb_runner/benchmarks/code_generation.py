@@ -46,7 +46,7 @@ class CodeGenerationProblem:
     platform: Platform
     question_id: str
     contest_id: str
-    contest_date: datetime
+    contest_date: str
     starter_code: str
     difficulty: Difficulty
     public_test_cases: list[Test]
@@ -56,7 +56,6 @@ class CodeGenerationProblem:
     def __post_init__(self):
         self.platform = Platform(self.platform)
         self.difficulty = Difficulty(self.difficulty)
-        self.contest_date = datetime.fromisoformat(self.contest_date)
 
         self.public_test_cases = json.loads(self.public_test_cases)  # type: ignore
         self.public_test_cases = [Test(**t) for t in self.public_test_cases]
