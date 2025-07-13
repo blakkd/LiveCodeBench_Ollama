@@ -33,6 +33,7 @@ class LMStyle(Enum):
     DeepSeekR1 = "DeepSeekR1"
 
     TogetherAI = "TogetherAI"
+    Ollama = "Ollama"
 
 
 @dataclass
@@ -57,6 +58,21 @@ class LanguageModel:
 
 
 LanguageModelList: list[LanguageModel] = [
+    ## Ollama Models
+    LanguageModel(
+        "llama3:instruct",
+        "Ollama-Llama3-Instruct",
+        LMStyle.Ollama,
+        datetime(2024, 4, 18),
+        link="https://ollama.com/library/llama3",
+    ),
+    LanguageModel(
+        "codellama:instruct",
+        "Ollama-CodeLlama-Instruct",
+        LMStyle.Ollama,
+        datetime(2023, 8, 24),
+        link="https://ollama.com/library/codellama",
+    ),
     ## LLama3 Base (8B and 70B)
     LanguageModel(
         "meta-llama/Meta-Llama-3-8B",

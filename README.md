@@ -64,7 +64,7 @@ python -m lcb_runner.runner.main --model {model_name} --scenario codegeneration 
 
 ### Code Generation
 
-We use `vllm` for inference using open models. By default, we use  `tensor_parallel_size=${num_gpus}` to parallelize inference across all available GPUs. It can be configured using the  `--tensor_parallel_size` flag as required. 
+We use `vllm` for inference using open models. By default, we use  `tensor_parallel_size=${num_gpus}` to parallelize inference across all available GPUs. It can be configured using the  `--tensor_parallel_size` flag as required.
 
 For running the inference, please provide the `model_name` based on the [./lcb_runner/lm_styles.py](./lcb_runner/lm_styles.py) file.
 The scenario (here `codegeneration`) can be used to specify the scenario for the model.
@@ -77,6 +77,23 @@ Additionally, `--use_cache` flag can be used to cache the generated outputs and 
 
 For closed API models,  `--multiprocess` flag can be used to parallelize queries to API servers (adjustable according to rate limits).
 
+### Using Ollama for Local Inference
+
+This fork adds support for running inference via [Ollama](https://ollama.com). This allows you to easily test any model supported by Ollama running on your local machine.
+
+**Run the Benchmark:**
+Run the benchmark by specifying the Ollama model name.
+```bash
+python -m lcb_runner.runner.main --model llama3:instruct --scenario codegeneration --evaluate --n 1
+```
+> **Note:** We recommend starting with a low number of samples (`--n 1`) to ensure everything is working correctly before running a full evaluation.
+
+**Configuration:**
+By default, the runner will attempt to connect to Ollama at `http://localhost:11434`. You can change this using the `--ollama_host` argument or by setting the `OLLAMA_HOST` environment variable.
+```bash
+# Example with a custom host
+python -m lcb_runner.runner.main --model qwen3:30b-a3b-q4_K_M --ollama_host http://192.168.1.10:11434
+```
 
 #### Evaluation
 We compute `pass@1` and `pass@5` metrics for model evaluations.
@@ -88,22 +105,22 @@ python -m lcb_runner.runner.main --model {model_name} --scenario codegeneration 
 ```
 
 Note that time limits can cause slight (`< 0.5`) points of variation in the computation of the `pass@1` and `pass@5` metrics.
-If you observe a significant variation in performance, adjust the `--num_process_evaluate` flag to a lower value or increase the `--timeout` flag. Please report particular issues caused by improper timeouts here. 
+If you observe a significant variation in performance, adjust the `--num_process_evaluate` flag to a lower value or increase the `--timeout` flag. Please report particular issues caused by improper timeouts here.
 
-Finally, to get scores over different time windows, you can use [./lcb_runner/evaluation/compute_scores.py](./lcb_runner/evaluation/compute_scores.py) file. 
+Finally, to get scores over different time windows, you can use [./lcb_runner/evaluation/compute_scores.py](./lcb_runner/evaluation/compute_scores.py) file.
 Particularly, you can provide `--start_date` and `--end_date` flags (using the `YYYY-MM-DD` format) to get scores over the specified time window. In our paper, to counter contamination in the DeepSeek models, we only report results on problems released after August 2023. You can replicate those evaluations using:
 
 ```bash
 python -m lcb_runner.evaluation.compute_scores --eval_all_file {saved_eval_all_file} --start_date 2023-09-01
 ```
 
-**NOTE: We have pruned a large number of test cases from the original benchmark and created `code_generation_lite` which is set as the default benchmark offering similar performance estimation much faster. If you wish to use the original benchmark, please use the `--not_fast` flag. We are in the process of updating the leaderboard scores with this updated setting.** 
+**NOTE: We have pruned a large number of test cases from the original benchmark and created `code_generation_lite` which is set as the default benchmark offering similar performance estimation much faster. If you wish to use the original benchmark, please use the `--not_fast` flag. We are in the process of updating the leaderboard scores with this updated setting.**
 
 **NOTE: V2 Update: to run the update LiveCodeBench please use `--release_version release_v2`. In addition, if you have existing results from `release_v1` you can add `--continue_existing` or better `--continue_existing_with_eval` flags to reuse the old completions or evaluations respectively.**
 
 
 ### Self Repair
-For running self repair, you need to provide an additional `--codegen_n` flag that maps to the number of codes that were generated during code generation. Additionally, the `--temperature` flag is used to resolve the old code generation eval file which must be present in the `output` directory. 
+For running self repair, you need to provide an additional `--codegen_n` flag that maps to the number of codes that were generated during code generation. Additionally, the `--temperature` flag is used to resolve the old code generation eval file which must be present in the `output` directory.
 
 ```bash
 python -m lcb_runner.runner.main --model {model_name --scenario selfrepair --codegen_n {num_codes_codegen} --n 1 # only n=1 supported
@@ -138,7 +155,7 @@ python -m lcb_runner.runner.main --model {model_name} --scenario codeexecution -
 ```
 
 ## Custom Evaluation
-Alternatively, you can using [`lcb_runner/runner/custom_evaluator.py`](./lcb_runner/runner/custom_evaluator.py) to directly evaluated model generations in a custom file. The file should contain a list of model outputs, appropriately formatted for evaluation in the order of benchmark problems. 
+Alternatively, you can using [`lcb_runner/runner/custom_evaluator.py`](./lcb_runner/runner/custom_evaluator.py) to directly evaluated model generations in a custom file. The file should contain a list of model outputs, appropriately formatted for evaluation in the order of benchmark problems.
 
 ```bash
 python -m lcb_runner.runner.custom_evaluator --custom_output_file {path_to_custom_outputs}
@@ -156,11 +173,11 @@ Particularly, arrange the outputs in the following format
 
 ## Adding Support for New Models
 
-To add support for new models, we have implemented an extensible framework to add new models and customize prompts appropriately. 
+To add support for new models, we have implemented an extensible framework to add new models and customize prompts appropriately.
 
 Step 1: Add a new model to the [./lcb_runner/lm_styles.py](./lcb_runner/lm_styles.py) file. Particularly, extend the `LMStyle` class to add a new model family and extend the model to the `LanguageModelList` array.
 
-Step 2: Since we use instruction tuned models, we allow configuring the instruction for each model. Modify the [./lcb_runner/prompts/generation.py](./lcb_runner/prompts/generation.py) file to add a new prompt for the model in the `format_prompt_generation` function. 
+Step 2: Since we use instruction tuned models, we allow configuring the instruction for each model. Modify the [./lcb_runner/prompts/generation.py](./lcb_runner/prompts/generation.py) file to add a new prompt for the model in the `format_prompt_generation` function.
 For example, the prompt for `DeepSeekCodeInstruct` family of models looks as follows
 
 ```python
@@ -172,13 +189,13 @@ if LanguageModelStyle == LMStyle.DeepSeekCodeInstruct:
 ```
 
 ## Submit Models to Leaderboard
-We are currently only accepting submissions for only the code generation scenario. To submit models you can create a pull request on our [submissions](https://github.com/LiveCodeBench/submissions). Particularly, you can copy your model generations folder from `output` to the `submissions` folder and create a pull request. We will review the submission and add the model to the leaderboard accordingly. 
+We are currently only accepting submissions for only the code generation scenario. To submit models you can create a pull request on our [submissions](https://github.com/LiveCodeBench/submissions). Particularly, you can copy your model generations folder from `output` to the `submissions` folder and create a pull request. We will review the submission and add the model to the leaderboard accordingly.
 
 ## ERRATA
 We maintain a list of known issues and updates in the [ERRATA.md](./ERRATA.md) file. Particularly, we document issues regarding erroneous tests and problems not amenable to autograding. We are constantly using this feedback to improve our problem selection heuristics as we update LiveCodeBench.
 
 ## Results
-LiveCodeBench can be used to evaluate performance of LLMs on different time-windows (using problem release date to filter the models). 
+LiveCodeBench can be used to evaluate performance of LLMs on different time-windows (using problem release date to filter the models).
 Thus we can detect and prevent potential contamination in the evaluation process and evaluate LLMs on _new_ problems.
 
 <div style="text-align: center;">
@@ -188,7 +205,7 @@ Thus we can detect and prevent potential contamination in the evaluation process
     width="40%" />
 </div>
 
-Next, we evaluate models on different code capabilities and find that relative performances of models do change over tasks (left). 
+Next, we evaluate models on different code capabilities and find that relative performances of models do change over tasks (left).
 Thus, it highlights the need for holistic evaluation of LLMs for code.
 
 <div style="text-align: center;">
@@ -198,9 +215,9 @@ Thus, it highlights the need for holistic evaluation of LLMs for code.
     width="46%" />
 </div>
 
-We also find evidence of possible overfitting on HumanEval (right). 
-Particularly, models that perform well on HumanEval do not necessarily perform well on LiveCodeBench. 
-In the scatterplot above, we find the models get clustered into two groups, shaded in red and green. 
+We also find evidence of possible overfitting on HumanEval (right).
+Particularly, models that perform well on HumanEval do not necessarily perform well on LiveCodeBench.
+In the scatterplot above, we find the models get clustered into two groups, shaded in red and green.
 The red group contains models that perform well on HumanEval but poorly on LiveCodeBench, while the green group contains models that perform well on both.
 
 For more details, please refer to our website at [livecodebench.github.io](https://livecodebench.github.io).

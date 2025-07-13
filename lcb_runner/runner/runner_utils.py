@@ -2,6 +2,10 @@ from lcb_runner.lm_styles import LMStyle, LanguageModel
 
 
 def build_runner(args, model: LanguageModel):
+    if model.model_style == LMStyle.Ollama:
+        from lcb_runner.runner.ollama_runner import OllamaRunner
+
+        return OllamaRunner(args, model)
     if model.model_style == LMStyle.OpenAIChat:
         from lcb_runner.runner.oai_runner import OpenAIRunner
 

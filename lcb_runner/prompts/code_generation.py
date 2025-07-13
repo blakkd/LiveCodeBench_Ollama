@@ -211,6 +211,7 @@ def format_prompt_generation(
 ) -> str:
     if LanguageModelStyle in [
         LMStyle.OpenAIChat,
+        LMStyle.Ollama,
         LMStyle.DeepSeekAPI,
         LMStyle.TogetherAI,
         LMStyle.CohereCommand,

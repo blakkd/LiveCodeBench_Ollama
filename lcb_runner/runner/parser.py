@@ -39,7 +39,7 @@ def get_args():
         "--release_version",
         type=str,
         default="release_latest",
-        help="whether to use full set of tests (slower and more memory intensive evaluation)",
+        help="the dataset release version",
     )
     parser.add_argument(
         "--cot_code_execution",
@@ -93,6 +93,12 @@ def get_args():
     parser.add_argument("--timeout", type=int, default=6, help="Timeout for evaluation")
     parser.add_argument(
         "--openai_timeout", type=int, default=90, help="Timeout for requests to OpenAI"
+    )
+    parser.add_argument(
+        "--ollama_host",
+        type=str,
+        default=None,
+        help="Host for Ollama server. Defaults to `http://localhost:11434` or `OLLAMA_HOST` env var.",
     )
     parser.add_argument(
         "--tensor_parallel_size",

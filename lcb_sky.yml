@@ -7,6 +7,6 @@ resources:
 
   disk_size: 1000
 
-setup: 
-  pip install google-generativeai pebble anthropic openai mistralai
-  pip install vllm 
+setup:
+  pip install google-generativeai pebble anthropic openai mistralai ollama
+  pip install vllm

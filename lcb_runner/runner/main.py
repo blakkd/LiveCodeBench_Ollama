@@ -1,9 +1,10 @@
 import os
 import json
+from datetime import datetime
 
 from lcb_runner.runner.parser import get_args
 from lcb_runner.utils.scenarios import Scenario
-from lcb_runner.lm_styles import LanguageModelStore
+from lcb_runner.lm_styles import LanguageModelStore, LanguageModel, LMStyle
 from lcb_runner.runner.runner_utils import build_runner
 from lcb_runner.utils.path_utils import get_output_path
 from lcb_runner.evaluation import extract_instance_results
@@ -18,7 +19,18 @@ from lcb_runner.runner.scenario_router import (
 def main():
     args = get_args()
 
-    model = LanguageModelStore[args.model]
+    try:
+        model = LanguageModelStore[args.model]
+    except KeyError:
+        print(
+            f"Model '{args.model}' not found in LanguageModelStore. Assuming it is an Ollama model."
+        )
+        model = LanguageModel(
+            model_name=args.model,
+            model_repr=args.model.replace(":", "-"),
+            model_style=LMStyle.Ollama,
+            release_date=datetime.now(),
+        )
     benchmark, format_prompt = build_prompt_benchmark(args)
     if args.debug:
         print(f"Running with {len(benchmark)} instances in debug mode")
