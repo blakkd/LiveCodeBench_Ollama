@@ -142,7 +142,7 @@ python -m lcb_runner.runner.main --model {model_name} --scenario testoutputpredi
 ```
 
 ### Code Execution
-For running the test output prediction scenario you can simply run
+For running the code execution scenario you can simply run
 
 ```bash
 python -m lcb_runner.runner.main --model {model_name} --scenario codeexecution --evaluate
