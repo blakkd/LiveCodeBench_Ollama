@@ -211,7 +211,6 @@ def format_prompt_generation(
 ) -> str:
     if LanguageModelStyle in [
         LMStyle.OpenAIChat,
-        LMStyle.Ollama,
         LMStyle.DeepSeekAPI,
         LMStyle.TogetherAI,
         LMStyle.CohereCommand,
@@ -223,6 +222,14 @@ def format_prompt_generation(
             },
         ]
         chat_messages += [
+            {
+                "role": "user",
+                "content": get_generic_question_template_answer(question),
+            },
+        ]
+        return chat_messages
+    elif LanguageModelStyle == LMStyle.Ollama:
+        chat_messages = [
             {
                 "role": "user",
                 "content": get_generic_question_template_answer(question),
