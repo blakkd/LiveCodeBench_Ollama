@@ -38,7 +38,8 @@ class PromptConstants:
 
 
 def get_generic_question_template_answer(question: CodeGenerationProblem):
-    prompt = f"### Question:\n{question.question_content}\n\n"
+    prompt = "***The goal is to write a Python script that meets the following problem's requirements and is guaranteed to pass all test cases.***\n\n"
+    prompt += f"Question: {question.question_content}\n\n"
     if question.starter_code:
         prompt += (
             f"### Format: {PromptConstants.FORMATTING_MESSAGE_WITH_STARTER_CODE}\n"
