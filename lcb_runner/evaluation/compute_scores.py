@@ -30,10 +30,6 @@ def get_parser():
         "--n", type=int, default=10, help="Number of samples to generate"
     )
     parser.add_argument(
-        "--temperature", type=float, default=0.2, help="Temperature for sampling"
-    )
-
-    parser.add_argument(
         "--eval_all_file",
         type=str,
         default=None,

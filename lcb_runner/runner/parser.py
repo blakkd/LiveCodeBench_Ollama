@@ -56,10 +56,6 @@ def get_args():
         help="Number of samples for which code generation was run (used to map the code generation file during self-repair)",
     )
     parser.add_argument(
-        "--temperature", type=float, default=0.2, help="Temperature for sampling"
-    )
-    parser.add_argument("--top_p", type=float, default=0.95, help="Top p for sampling")
-    parser.add_argument(
         "--max_tokens", type=int, default=2000, help="Max tokens for sampling"
     )
     parser.add_argument(

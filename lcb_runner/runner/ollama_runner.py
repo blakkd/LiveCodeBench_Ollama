@@ -20,8 +20,6 @@ class OllamaRunner(BaseRunner):
         self.client_kwargs: dict[str | str] = {
             "model": args.model,
             "options": {
-                "temperature": args.temperature,
-                "top_p": args.top_p,
                 "num_predict": args.max_tokens,
                 "stop": args.stop,
             }
