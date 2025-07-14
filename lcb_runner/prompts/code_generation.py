@@ -38,7 +38,7 @@ class PromptConstants:
 
 
 def get_generic_question_template_answer(question: CodeGenerationProblem):
-    prompt = "***The goal is to write a Python script that meets the following problem's requirements and is guaranteed to pass all test cases.***\n\n"
+    prompt = "Write a Python script that meets the following problem's requirements and is guaranteed to pass all test cases.\n\n"
     prompt += f"Question: {question.question_content}\n\n"
     if question.starter_code:
         prompt += (
@@ -47,8 +47,7 @@ def get_generic_question_template_answer(question: CodeGenerationProblem):
         prompt += f"```python\n{question.starter_code}\n```\n\n"
     else:
         prompt += f"### Format: {PromptConstants.FORMATTING_WITHOUT_STARTER_CODE}\n"
-        prompt += "```python\n# YOUR CODE HERE\n```\n\n"
-    prompt += f"### Answer: (use the provided format with backticks)\n\n"
+        prompt += "```python\n# YOUR CODE HERE\n```"
     return prompt
 
 
